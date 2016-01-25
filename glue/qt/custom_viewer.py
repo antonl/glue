@@ -99,7 +99,7 @@ __all__ = ["AttributeInfo", "ViewerState", "UserDefinedFunction",
            "CustomViewer", "CustomArtist", "CustomClient", "CustomWidgetBase",
            "FormDescriptor", "FormElement", "NumberElement", "LabeledSlider",
            "BoolElement", "FixedComponent", "ComponentElement",
-           "ChoiceElement"]
+           "HiddenComponentElement", "ChoiceElement"]
 
 
 class AttributeInfo(np.ndarray):
@@ -1415,6 +1415,26 @@ class ComponentElement(FormElement, core.hub.HubListener):
     def add_data(self, data):
         self._update_components()
 
+class HiddenComponentElement(ComponentElement):
+
+    """
+    A dropdown selector to choose a component that also recognizes hidden
+    components
+
+    The shorthand notation is 'atth'::
+
+        e = FormElement.auto('atth')
+    """
+
+    @classmethod
+    def recognizes(cls, params):
+        return params == 'atth'
+    
+    def _list_components(self):
+        comps = list(set([c for l in self.container.layers
+                          for c in l.data.components]))
+        comps = sorted(comps, key=lambda x: x.label)
+        return comps
 
 class ChoiceElement(FormElement):
 
